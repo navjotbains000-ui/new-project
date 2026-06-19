@@ -6,10 +6,17 @@ pool:
 
 steps:
 
-- script: |
-    echo "Hello Navjot"
-    echo "My First Azure DevOps Pipeline"
-    pwd
-    ls -la
-    date
-  displayName: 'First Pipeline'
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'DevOpsVM'
+    sourceFolder: '$(Build.SourcesDirectory)'
+    contents: '**'
+    targetFolder: '/tmp/website'
+
+- task: SSH@0
+  inputs:
+    sshEndpoint: 'DevOpsVM'
+    runOptions: 'commands'
+    commands: |
+      sudo cp -r /tmp/website/* /var/www/html/
+      sudo systemctl restart nginx
